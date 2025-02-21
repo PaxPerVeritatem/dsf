@@ -1,5 +1,4 @@
 from selection.selectivesampler import SelectiveSampler
-import random
 
 
 class EvenSampler(SelectiveSampler):

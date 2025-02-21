@@ -39,15 +39,18 @@ class SelectiveSampler(DistributedSampler, ABC):
 
     def __iter__(self):
         indices = list(super().__iter__())
-
+        # print(indices) # For debugging
+        
         if self.mask is None:
             raise RuntimeError("No mask set - call set_mask() before iterating")
 
-        indices = [idx for i, idx in enumerate(indices) if self.mask[idx]]
-        if not indices:
+        # Corrected this to use i instead of idx to check the mask, otherwise it would not utilize shuffled indices correctly
+        # indices = [idx for i, idx in enumerate(indices) if self.mask[idx]]
+        selected_indices = [idx for i, idx in enumerate(indices) if self.mask[i]]
+        if not selected_indices:
             raise RuntimeError("No samples selected - mask may be all False or unset")
 
-        return iter(indices)
+        return iter(selected_indices)
 
     def __len__(self) -> int:
         return self._num_selected_samples
