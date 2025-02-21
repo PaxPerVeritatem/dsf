@@ -26,17 +26,23 @@ class Rsrs_No_Replacement_Sampler(SelectiveSampler):
 
         return iter(selected_indices)
         
-    def pre_epoch(self) -> None:
+    def pre_epoch(self,num_epochs) -> None:
         """Set mask to only select a random subset before each epoch starts"""
         dataset_size = len(self.dataset)
-        
+       
         # TODO: change percentage to an argument to easily try out different percentages
-        subset_size = int(dataset_size / self.num_epochs)
+        subset_size = int(dataset_size / num_epochs)
         
-        start_idx = min(dataset_size -1, subset_size * self.epoch)
-        end_idx = min(dataset_size-1, start_idx + subset_size)
+        if (self.epoch == num_epochs-1): 
+            start_idx = min(dataset_size -1, subset_size * self.epoch)
+            # does not need to be dataset_size-1 because mask[start_idx:end_idx] is exclusive
+            end_idx = dataset_size
         
-        
+        else : 
+            start_idx = min(dataset_size -1, subset_size * self.epoch)
+            end_idx = min(dataset_size-1, start_idx + subset_size)
+            
+         
         mask = [False] * dataset_size
         mask[start_idx:end_idx] = [True] * (end_idx - start_idx)
         
@@ -55,13 +61,13 @@ class Rsrs_No_Replacement_Sampler(SelectiveSampler):
         pass
 
 if __name__ == "__main__":
-    ds = list(range(21))
+    ds = list(range(10))
     rsrs = Rsrs_No_Replacement_Sampler(ds,num_replicas=1, rank=0,shuffle=True, seed=0)
-    epochs = 11
+    epochs = 2
     for e in range(epochs):
         print(rsrs.dataset)
         rsrs.set_epoch(e)
-        rsrs.pre_epoch()
+        rsrs.pre_epoch(epochs)
         selected_indices = rsrs.__iter__()
         print(rsrs.indices)
         print(list(selected_indices))
