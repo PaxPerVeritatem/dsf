@@ -39,7 +39,7 @@ class SelectiveSampler(DistributedSampler, ABC):
 
     def __iter__(self):
         indices = list(super().__iter__())
-        # print(indices) # For debugging
+        print(indices) # For debugging
         
         if self.mask is None:
             raise RuntimeError("No mask set - call set_mask() before iterating")
